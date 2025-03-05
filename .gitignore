@@ -1,0 +1,30 @@
+# Fichiers spécifiques à PyCharm / IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Environnement virtuel Python
+venv/
+.env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dépendances
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Logs et fichiers temporaires
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Dossiers de cache
+.cache/
