@@ -8,7 +8,7 @@ import cv2
 
 class DataGenerator(tf.keras.utils.Sequence):
     def __init__(self, image_paths, mask_paths, batch_size, img_size,
-                 num_classes=8, augmentation=None, shuffle=True, one_hot=True):
+                 num_classes=8, augmentation=None, shuffle=True):
         """
         Data Generator pour la segmentation d'images
 
@@ -19,7 +19,6 @@ class DataGenerator(tf.keras.utils.Sequence):
         num_classes : Nombre de classes dans le masque
         augmentation : Transformations Albumentations (à la volée - non appliqué ici car traité en amont)
         shuffle : Mélange les données à chaque epoch
-        one_hot : Active one-hot encoding pour les masques
         """
         self.image_paths = image_paths
         self.mask_paths = mask_paths
@@ -28,7 +27,7 @@ class DataGenerator(tf.keras.utils.Sequence):
         self.num_classes = num_classes
         # self.augmentation = augmentation
         self.shuffle = shuffle
-        self.one_hot = one_hot
+        # self.one_hot = one_hot
         self.on_epoch_end()
 
     def __len__(self):
@@ -66,16 +65,12 @@ class DataGenerator(tf.keras.utils.Sequence):
             # mask = cv2.resize(mask, self.img_size, interpolation=cv2.INTER_NEAREST)  # Resize sans modifier les labels
             # mask = mask.astype(np.uint8)
 
-            # Appliquer la data augmentation si définie
-            if self.augmentation:
-                augmented = self.augmentation(image=img, mask=mask)
-                img, mask = augmented["image"], augmented["mask"]
+            # # Appliquer la data augmentation si définie
+            # if self.augmentation:
+            #     augmented = self.augmentation(image=img, mask=mask)
+            #     img, mask = augmented["image"], augmented["mask"]
 
             X[i] = img
             Y[i] = mask
-
-        # One-hot encoding des masques si nécessaire
-        if self.one_hot:
-            Y = to_categorical(Y, num_classes=self.num_classes)
 
         return X, Y
