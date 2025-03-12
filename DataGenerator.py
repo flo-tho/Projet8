@@ -62,7 +62,7 @@ class DataGenerator(tf.keras.utils.Sequence):
 
             # Chargement du masque
             mask = np.load(mask_path)  # Chargement du masque
-            # mask = cv2.resize(mask, self.img_size, interpolation=cv2.INTER_NEAREST)  # Resize sans modifier les labels
+            mask = cv2.resize(mask, self.img_size, interpolation=cv2.INTER_NEAREST)  # Resize sans modifier les labels
             # mask = mask.astype(np.uint8)
 
             # # Appliquer la data augmentation si définie

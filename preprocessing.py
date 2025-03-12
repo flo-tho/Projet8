@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-def preprocess_image(image_path, target_size=(512, 512)):
+def preprocess_image(image_path, target_size=(256, 256)):
     """Charge et applique les transformations à une image."""
     image = cv2.imread(image_path, cv2.IMREAD_COLOR)
     image = cv2.resize(image, target_size)
