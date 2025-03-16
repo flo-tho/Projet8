@@ -2,42 +2,36 @@ import streamlit as st
 import requests
 import numpy as np
 import io
-import PIL.Image as Image
+from PIL import Image
+import matplotlib.pyplot as plt
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "http://127.0.0.1:8000/predict/"
 
 st.title("Segmentation d'Images - Interface de Test")
 
-# Récupérer la liste des images disponibles
-st.sidebar.header("Sélection de l'image")
-response = requests.get(f"{API_URL}/images/")
-if response.status_code == 200:
-    image_list = response.json().get("images", [])
-    selected_image = st.sidebar.selectbox("Choisissez une image :", image_list)
-else:
-    st.sidebar.error("Impossible de récupérer la liste des images")
-    selected_image = None
+# Sélection de l'image locale
+uploaded_file = st.file_uploader("Choisissez une image", type=["png", "jpg", "jpeg"])
 
-if selected_image:
-    image_path = f"images/test/{selected_image}"
-    with open(image_path, "rb") as img_file:
-        image_data = img_file.read()
+if uploaded_file is not None:
+    # Afficher l'image originale
+    image = Image.open(uploaded_file)
+    st.image(image, caption="Image originale", use_container_width=True)
 
-    st.image(image_path, caption="Image originale", use_column_width=True)
+    # Bouton pour envoyer l'image à l'API
+    if st.button("Lancer la prédiction"):
+        files = {"file": uploaded_file.getvalue()}
+        response = requests.post(API_URL, files=files)
 
-    # Lancer la prédiction
-    if st.button("Lancer la Prédiction"):
-        files = {"file": (selected_image, image_data, "image/jpeg")}
-        response = requests.post(f"{API_URL}/predict/", files=files)
         if response.status_code == 200:
-            mask_bytes = io.BytesIO(response.content)
-            predicted_mask = np.load(mask_bytes)
+            # Charger le masque depuis la réponse
+            npy_bytes = io.BytesIO(response.content)
+            predicted_mask = np.load(npy_bytes)
 
-            # Charger le masque réel
-            mask_path = image_path.replace("images/test", "masks").replace(".jpg", "_gtFine_labelIds.png")
-            real_mask = Image.open(mask_path)
-
-            st.image(real_mask, caption="Masque Réel", use_column_width=True)
-            st.image(predicted_mask, caption="Masque Prédit", use_column_width=True)
+            # Affichage du masque
+            st.subheader("Masque Prédit")
+            fig, ax = plt.subplots()
+            ax.imshow(predicted_mask, cmap="jet")  # Appliquer une colormap pour visualiser les classes
+            ax.axis("off")
+            st.pyplot(fig)
         else:
-            st.error("Erreur lors de la prédiction")
+            st.error(f"Erreur lors de la prédiction: {response.status_code}")
