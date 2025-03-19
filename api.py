@@ -36,7 +36,7 @@ class MeanIoUMetric(tf.keras.metrics.Metric):
 
 # Charger le modèle
 mlflow.set_tracking_uri('http://127.0.0.1:5000/')
-model_uri = "mlflow-artifacts:/615947391303416845/3ea901938c0446ebb1bbe9729f403322/artifacts/VGG16_unet"
+model_uri = "mlflow-artifacts:/615947391303416845/f1a90ff0bad347788cdeea4fb1ef6cdf/artifacts/VGG16_unet"
 model_path = mlflow.artifacts.download_artifacts(model_uri)
 model_path = os.path.join(model_path, "data/model.keras")
 model = keras.models.load_model(model_path)
