@@ -9,10 +9,7 @@ from keras.saving import register_keras_serializable
 from fastapi import FastAPI, HTTPException, File, UploadFile, Response
 from PIL import Image
 import cv2
-import logging
 
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
 
 app = FastAPI()
 @register_keras_serializable(package="Custom", name="MeanIoUMetric")
@@ -34,12 +31,20 @@ class MeanIoUMetric(tf.keras.metrics.Metric):
 
 
 
-# Charger le modèle
-mlflow.set_tracking_uri('http://127.0.0.1:5000/')
-model_uri = "mlflow-artifacts:/615947391303416845/f1a90ff0bad347788cdeea4fb1ef6cdf/artifacts/VGG16_unet"
-model_path = mlflow.artifacts.download_artifacts(model_uri)
-model_path = os.path.join(model_path, "data/model.keras")
-model = keras.models.load_model(model_path)
+
+#------------------------
+# 1. Chargement du modèle dans le conteneur Docker
+#------------------------
+model_path = "/models/model"
+model = mlflow.tensorflow.load_model(model_path)
+
+
+# # Code pour la version locale (direct MLflow, non utilisé sur le cloud)
+# mlflow.set_tracking_uri('http://127.0.0.1:5000/')
+# model_uri = "mlflow-artifacts:/615947391303416845/f1a90ff0bad347788cdeea4fb1ef6cdf/artifacts/VGG16_unet"
+# model_path = mlflow.artifacts.download_artifacts(model_uri)
+# model_path = os.path.join(model_path, "data/model.keras")
+# model = keras.models.load_model(model_path)
 
 # Fonction de prétraitement de l'image
 def preprocess_image(image: Image.Image, target_size=(256, 256)):
@@ -51,6 +56,9 @@ def preprocess_image(image: Image.Image, target_size=(256, 256)):
     return image, original_size
 
 
+#------------------------
+# 2. Prediction
+#------------------------
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
     try:
