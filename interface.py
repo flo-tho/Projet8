@@ -1,3 +1,5 @@
+# lancer streamlit avec streamlit run interface.py
+
 import streamlit as st
 import requests
 import numpy as np
@@ -6,7 +8,10 @@ import os
 from PIL import Image
 import matplotlib.pyplot as plt
 
-API_URL = "http://127.0.0.1:8000/predict/"
+# URL de l'API hébergée sur Azure
+API_URL = "https://appprojet8seg-e4audkeuaxa9hwaj.francecentral-01.azurewebsites.net/predict/"
+
+# API_URL = "http://127.0.0.1:8000/predict/"
 MASKS_DIR = r"C:\Users\flore\Openclassrooms\Projet 8\data\test"
 
 st.title("Segmentation d'Images - Interface de Test")

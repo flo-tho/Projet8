@@ -6,7 +6,7 @@ mlflow_tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:50
 mlflow.set_tracking_uri(mlflow_tracking_uri)
 
 # Définition du répertoire de destination pour les modèles (dans le dépôt GitHub)
-models_dir = "models"
+models_dir = "docker_models"
 
 # On s'assure que le dossier "models" existe:
 os.makedirs(models_dir, exist_ok=True)

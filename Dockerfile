@@ -9,6 +9,7 @@ WORKDIR /api
 
 # Copie et installation des dépendances
 COPY requirements.txt .
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copie des fichiers utiles pour l'application
@@ -17,7 +18,7 @@ COPY requirements.txt /api/
 
 # Copie du modèle téléchargé en amont du build, avec Git Hub Actions depuis MLflow (local)
 RUN mkdir -p /models
-COPY models /models
+COPY doker_models /models
 
 # Exposition du port 8000
 EXPOSE 8000
