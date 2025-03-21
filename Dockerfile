@@ -10,9 +10,9 @@ FROM python:3.12-slim
 WORKDIR /api
 
 # Copie et installation des dépendances
-COPY requirements_docker.txt /api/
+COPY requirements.txt /api/
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements_docker.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copie des fichiers utiles pour l'application
 COPY api.py /api/
