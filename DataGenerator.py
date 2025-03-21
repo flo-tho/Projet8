@@ -32,8 +32,8 @@ class DataGenerator(tf.keras.utils.Sequence):
 
     def __len__(self):
         """Nombre de batches par epoch"""
-        return int(np.floor(len(self.image_paths)
-                            / self.batch_size))
+        return int(np.floor(len(self.image_paths) /
+                            self.batch_size))
 
     def __getitem__(self, index):
         """Retourne un batch d'images et de masques"""
