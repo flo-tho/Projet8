@@ -10,11 +10,11 @@ WORKDIR /api
 # Copie et installation des dépendances
 COPY requirements.txt .
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements_docker.txt
 
 # Copie des fichiers utiles pour l'application
 COPY api.py /api/
-COPY requirements.txt /api/
+COPY requirements_docker.txt /api/
 
 # Copie du modèle téléchargé en amont du build, avec Git Hub Actions depuis MLflow (local)
 RUN mkdir -p /docker_models
