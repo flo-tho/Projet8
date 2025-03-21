@@ -69,11 +69,12 @@ jobs:
       - name: Commiter les artefacts téléchargés
         run: |
           git add docker_models/
-          $changes = git diff --cached --quiet
-          if ($changes -eq $null) {
-            echo "Aucun fichier à ajouter"
+          
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+              echo "Aucun fichier à ajouter"
           } else {
-            git commit -m "Ajout des artefacts MLflow téléchargés par le runner"
+              git commit -m "Ajout des artefacts MLflow téléchargés par le runner"
           }
 
       - name: Pousser les modifications
