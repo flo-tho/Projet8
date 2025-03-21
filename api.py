@@ -36,8 +36,16 @@ class MeanIoUMetric(tf.keras.metrics.Metric):
 # 1. Chargement du modèle dans le conteneur Docker
 #------------------------
 model_path = "/docker_models/VGG16_unet/data/model.keras"
-model = keras.models.load_model(model_path)
-# model = mlflow.tensorflow.load_model(model_path)
+
+try:
+    print(f"Loading model from: {model_path}")
+    model = keras.models.load_model(model_path, custom_objects={"MeanIoUMetric": MeanIoUMetric})
+    # model = mlflow.tensorflow.load_model(model_path)
+    print("Model loaded successfully!")
+except Exception as e:
+    print(f"Error loading model: {str(e)}")
+
+
 
 
 # # Code pour la version locale (direct MLflow, non utilisé sur le cloud)
