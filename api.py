@@ -1,12 +1,12 @@
 import io
-import os
+# import os
 import uvicorn
 import numpy as np
-import mlflow
+# import mlflow
 import tensorflow as tf
 import keras
 from keras.saving import register_keras_serializable
-from fastapi import FastAPI, HTTPException, File, UploadFile, Response
+from fastapi import FastAPI, File, UploadFile, Response
 from PIL import Image
 import cv2
 
