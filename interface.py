@@ -14,7 +14,7 @@ API_URL = "https://appprojet8seg-e4audkeuaxa9hwaj.francecentral-01.azurewebsites
 # API_URL = "http://127.0.0.1:8000/predict/"
 MASKS_DIR = r"C:\Users\flore\Openclassrooms\Projet 8\data\test"
 
-st.title("Segmentation d'Images - Interface de Test")
+st.title("Segmentation d'Images - Test API")
 
 # Sélection de l'image locale
 uploaded_file = st.file_uploader("Choisissez une image", type=["png", "jpg", "jpeg"])

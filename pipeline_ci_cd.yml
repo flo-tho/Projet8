@@ -1,12 +1,13 @@
 name: Pipeline CI/CD
 
 on:
-  push:
-    branches:
-      - main  # Lancement automatique sur push vers la branche `main`
-    paths-ignore:
-      - 'models/**'  # Ignore les commits qui ne modifient que le dossier models/
   workflow_dispatch:  # Permet de lancer le pipeline manuellement via l'interface GitHub
+#  push:
+#    branches:
+#      - main  # Lancement automatique sur push vers la branche `main`
+    paths-ignore:
+      - 'docker_models/**'  # Ignore les commits qui ne modifient que le dossier models/
+
 
 jobs:
 
@@ -32,7 +33,7 @@ jobs:
         run: |
           pip install flake8
           flake8 --ignore=E501 .  # on utilise flake8 pour le linting, on ignore les erreurs de longueur de ligne
-          
+
   download_mlflow_model:
     runs-on: self-hosted
     needs: format-and-lint
@@ -62,12 +63,12 @@ jobs:
 
       - name: Suivre les fichiers volumineux avec Git LFS
         run: |
-          git lfs track "models/model/tf2model/variables/*.data*"  # Suivre les fichiers volumineux
+          git lfs track "docker_models/*.keras*"  # Suivre les fichiers volumineux
           git add .gitattributes  # Ajouter le fichier .gitattributes pour Git LFS
 
       - name: Commiter les artefacts téléchargés
         run: |
-          git add models/
+          git add docker_models/
           $changes = git diff --cached --quiet
           if ($changes -eq $null) {
             echo "Aucun fichier à ajouter"
@@ -100,17 +101,17 @@ jobs:
           password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
 
-      - name: Pull base image (force authentication)
-        run: |
-          docker pull ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/python:3.12-slim
+#      - name: Pull base image (force authentication)
+#        run: |
+#          docker pull ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/python:3.12-slim
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/sentiment_analysis-fastapi-app:${{ github.sha }} .
+          docker build -t ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/api:${{ github.sha }} .
 
       - name: Push Docker image to Azure ACR
         run: |
-          docker push ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/sentiment_analysis-fastapi-app:${{ github.sha }}
+          docker push ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/api:${{ github.sha }}
 
   deploy_to_azure_web_app:
     runs-on: ubuntu-latest
@@ -127,5 +128,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
-          images: ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/sentiment_analysis-fastapi-app:${{ github.sha }}
+          images: ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/api:${{ github.sha }}
 

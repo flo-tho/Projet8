@@ -17,8 +17,8 @@ COPY api.py /api/
 COPY requirements.txt /api/
 
 # Copie du modèle téléchargé en amont du build, avec Git Hub Actions depuis MLflow (local)
-RUN mkdir -p /models
-COPY doker_models /models
+RUN mkdir -p /docker_models
+COPY docker_models /docker_models
 
 # Exposition du port 8000
 EXPOSE 8000
