@@ -35,7 +35,7 @@ class MeanIoUMetric(tf.keras.metrics.Metric):
 #------------------------
 # 1. Chargement du modèle dans le conteneur Docker
 #------------------------
-model_path = "/docker_models/VGG16_unet_total_loss/data/model.keras"
+model_path = "/docker_models/VGG16_unet/data/model.keras"
 
 try:
     print(f"Loading model from: {model_path}")
@@ -70,6 +70,8 @@ def preprocess_image(image: Image.Image, target_size=(256, 256)):
 #------------------------
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)):
+    if model is None:
+        return {"error": "Model is not loaded properly"}
     try:
         # Lire l'image et la convertir
         image = Image.open(io.BytesIO(await file.read())).convert("RGB")
