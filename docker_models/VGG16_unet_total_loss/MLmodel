@@ -1,4 +1,4 @@
-artifact_path: VGG16_unet
+artifact_path: VGG16_unet_total_loss
 flavors:
   keras:
     data: data
@@ -12,7 +12,7 @@ flavors:
     loader_module: mlflow.keras
     python_version: 3.12.9
 mlflow_version: 2.20.3
-model_size_bytes: 133916382
-model_uuid: 97d89632123e44bf99968f6f963773d1
-run_id: f1a90ff0bad347788cdeea4fb1ef6cdf
-utc_time_created: '2025-03-17 10:10:29.354325'
+model_size_bytes: 133916610
+model_uuid: 60e8ad0b8fd64daa8e50aae7b1cd8d19
+run_id: 880b67b26f534f349d3e18d31300fbf4
+utc_time_created: '2025-03-25 03:16:26.207700'

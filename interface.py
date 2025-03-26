@@ -67,32 +67,40 @@ if uploaded_file is not None:
         response = requests.post(API_URL, files=files)
 
         if response.status_code == 200:
-            # Charger le masque depuis la réponse
-            npy_bytes = io.BytesIO(response.content)
-            predicted_mask = np.load(npy_bytes)
-            predicted_mask = apply_color_map(predicted_mask)
-
-            # Affichage du masque prédit
-            st.subheader("Masque Prédit")
-            fig, ax = plt.subplots()
-            ax.imshow(predicted_mask)
-            ax.axis("off")
-            st.pyplot(fig)
-
-            # Récupérer le masque original
-            original_mask_path = get_original_mask(uploaded_file.name)
-            if original_mask_path:
-                original_mask = np.load(original_mask_path)
-                original_mask = apply_color_map(original_mask)
-
-                # Affichage du masque original pour comparaison
-                st.subheader("Masque original")
-                fig, ax = plt.subplots()
-                ax.imshow(original_mask)
-                ax.axis("off")
-                st.pyplot(fig)
+            # Vérifier le type de contenu de la réponse
+            if response.headers['Content-Type'] == 'application/json':
+                st.error("L'API a renvoyé une erreur sous forme de JSON.")
+                st.json(response.json())  # Affiche l'erreur sous forme de JSON pour plus de détails
             else:
-                st.warning("Masque original non trouvé.")
+                try:
+                    # Charger le masque depuis la réponse
+                    npy_bytes = io.BytesIO(response.content)
+                    predicted_mask = np.load(npy_bytes)
+                    predicted_mask = apply_color_map(predicted_mask)
 
+                    # Affichage du masque prédit
+                    st.subheader("Masque Prédit")
+                    fig, ax = plt.subplots()
+                    ax.imshow(predicted_mask)
+                    ax.axis("off")
+                    st.pyplot(fig)
+
+                    # Récupérer le masque original
+                    original_mask_path = get_original_mask(uploaded_file.name)
+                    if original_mask_path:
+                        original_mask = np.load(original_mask_path)
+                        original_mask = apply_color_map(original_mask)
+
+                        # Affichage du masque original pour comparaison
+                        st.subheader("Masque original")
+                        fig, ax = plt.subplots()
+                        ax.imshow(original_mask)
+                        ax.axis("off")
+                        st.pyplot(fig)
+                    else:
+                        st.warning("Masque original non trouvé.")
+
+                except Exception as e:
+                    st.error(f"Erreur lors du chargement du fichier: {e}")
         else:
             st.error(f"Erreur lors de la prédiction: {response.status_code}")
