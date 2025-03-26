@@ -30,16 +30,66 @@ class MeanIoUMetric(tf.keras.metrics.Metric):
         self.miou.reset_state()
 
 
+@register_keras_serializable(package="Custom", name="dice_loss")
+def dice_loss(y_true, y_pred, smooth=1e-6):
+    """
+    Dice Loss pour segmentation multi-classes.
+
+    Args:
+        y_true: masque de vérité terrain (shape: batch, height, width).
+        y_pred: prédictions du modèle (shape: batch, height, width, num_classes).
+        smooth: petit facteur pour éviter les divisions par zéro.
+
+    Returns:
+        Dice loss scalaire.
+    """
+    num_classes = tf.shape(y_pred)[-1]
+    y_true_one_hot = tf.one_hot(tf.cast(y_true, tf.int32), depth=num_classes)  # One-hot encoding
+
+    # Calcul du Dice coefficient
+    intersection = tf.reduce_sum(y_true_one_hot * y_pred, axis=[1, 2, 3])  # Somme par batch
+    denominator = tf.reduce_sum(y_true_one_hot, axis=[1, 2, 3]) + tf.reduce_sum(y_pred, axis=[1, 2, 3])
+
+    dice_coeff = (2. * intersection + smooth) / (denominator + smooth)
+    return 1 - tf.reduce_mean(dice_coeff)
+
+
+@register_keras_serializable(package="Custom", name="balanced_cross_entropy")
+def balanced_cross_entropy(beta=0.5):
+    """
+    Balanced Cross Entropy (BCE pondérée).
+    """
+
+    def loss(y_true, y_pred):
+        num_classes = tf.shape(y_pred)[-1]
+        y_true_one_hot = tf.one_hot(tf.cast(y_true, tf.int32), depth=num_classes)  # One-hot encoding
+
+        # Éviter log(0) en contraignant y_pred entre [1e-6, 1-1e-6]
+        y_pred = tf.clip_by_value(y_pred, 1e-6, 1 - 1e-6)
+
+        # Calcul de la BCE pondérée
+        bce = - (beta * y_true_one_hot * tf.math.log(y_pred) +
+                 (1 - beta) * (1 - y_true_one_hot) * tf.math.log(1 - y_pred))
+        return tf.reduce_mean(bce)
+
+    return loss
+
+@register_keras_serializable(package="Custom", name="total_loss")
+def total_loss(y_true, y_pred, dice_weight=0.5, bce_weight=0.5, beta=0.5):
+    """
+    Combinaison de Dice Loss et Balanced Cross Entropy.
+    """
+    return dice_weight * dice_loss(y_true, y_pred) + bce_weight * balanced_cross_entropy(beta)(y_true, y_pred)
 
 
 #------------------------
 # 1. Chargement du modèle dans le conteneur Docker
 #------------------------
-model_path = "/docker_models/VGG16_unet/data/model.keras"
+model_path = "/docker_models/VGG16_unet_total_loss/data/model.keras"
 
 try:
     print(f"Loading model from: {model_path}")
-    model = keras.models.load_model(model_path, custom_objects={"MeanIoUMetric": MeanIoUMetric})
+    model = keras.models.load_model(model_path, custom_objects={"MeanIoUMetric": MeanIoUMetric,"total_loss": total_loss, "dice_loss": dice_loss, "balanced_cross_entropy": balanced_cross_entropy})
     # model = mlflow.tensorflow.load_model(model_path)
     print("Model loaded successfully!")
 except Exception as e:
