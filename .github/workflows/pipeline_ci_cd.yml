@@ -32,7 +32,7 @@ jobs:
       - name: linting
         run: |
           pip install flake8
-          flake8 --ignore=E501,W504 .  # On ignore les erreurs de longueur de ligne et W504
+          flake8 --ignore=E501,W504, W503 .  # On ignore les erreurs de longueur de ligne et W504
 
   download_mlflow_model:
     runs-on: self-hosted
