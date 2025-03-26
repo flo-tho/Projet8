@@ -35,7 +35,7 @@ class MeanIoUMetric(tf.keras.metrics.Metric):
 #------------------------
 # 1. Chargement du modèle dans le conteneur Docker
 #------------------------
-model_path = "/docker_models/VGG16_unet/data/model.keras"
+model_path = "/docker_models/VGG16_unet_total_loss/data/model.keras"
 
 try:
     print(f"Loading model from: {model_path}")
