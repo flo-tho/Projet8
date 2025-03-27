@@ -49,15 +49,15 @@ def apply_color_map(mask):
     return color_mask
 
 def get_original_mask(image_name):
+    """
+    Récupère le chemin d'accès (URL) du masque original correspondant au nom de l'image depuis Azure Blob Storage.
+    """
     base_name = image_name.split(".")[0].replace("_leftImg8bit", "")
+    # Construire l'URL du masque dans Azure Blob Storage
     mask_url = f"{AZURE_BLOB_URL}{base_name}_gtFine_labelIds.npy?{SAS_TOKEN}"
-
-    response = requests.get(mask_url)
-    if response.status_code == 200:
-        npy_bytes = io.BytesIO(response.content)
-        return np.load(npy_bytes)
-    else:
-        return None  # Ou afficher un message d'erreur
+    
+    # Retourner l'URL du masque (chemin d'accès sur Azure)
+    return mask_url
 
 # def get_original_mask(image_name):
 #     """
