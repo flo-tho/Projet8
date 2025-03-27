@@ -10,9 +10,12 @@ import matplotlib.pyplot as plt
 
 # URL de l'API hébergée sur Azure
 API_URL = "https://appprojet8seg-e4audkeuaxa9hwaj.francecentral-01.azurewebsites.net/predict/"
-
 # API_URL = "http://127.0.0.1:8000/predict/"
+
 MASKS_DIR = r"C:\Users\flore\Openclassrooms\Projet 8\data\test"
+
+AZURE_BLOB_URL = "https://p8segmentationstorage.blob.core.windows.net/maskscontainers/"
+SAS_TOKEN = "sp=r&st=2025-03-27T10:59:42Z&se=2025-04-06T17:59:42Z&spr=https&sv=2024-11-04&sr=c&sig=vmNTqvEp8St5HICKOUz%2FPxFsamROqfsF92Gp6LtEdoY%3D"
 
 st.title("Segmentation d'Images - Test API")
 
@@ -44,15 +47,26 @@ def apply_color_map(mask):
     return color_mask
 
 def get_original_mask(image_name):
-    """
-    Récupère le masque original correspondant au nom de l'image.
-    """
     base_name = image_name.split(".")[0].replace("_leftImg8bit", "")
-    for root, dirs, files in os.walk(MASKS_DIR):
-        for file in files:
-            if base_name in file and file.endswith("_gtFine_labelIds.npy"):
-                return os.path.join(root, file)
-    return None
+    mask_url = f"{AZURE_BLOB_URL}{base_name}_gtFine_labelIds.npy?{SAS_TOKEN}"
+
+    response = requests.get(mask_url)
+    if response.status_code == 200:
+        npy_bytes = io.BytesIO(response.content)
+        return np.load(npy_bytes)
+    else:
+        return None  # Ou afficher un message d'erreur
+
+# def get_original_mask(image_name):
+#     """
+#     Récupère le masque original correspondant au nom de l'image.
+#     """
+#     base_name = image_name.split(".")[0].replace("_leftImg8bit", "")
+#     for root, dirs, files in os.walk(MASKS_DIR):
+#         for file in files:
+#             if base_name in file and file.endswith("_gtFine_labelIds.npy"):
+#                 return os.path.join(root, file)
+#     return None
 
 
 
