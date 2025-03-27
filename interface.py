@@ -14,8 +14,10 @@ API_URL = "https://appprojet8seg-e4audkeuaxa9hwaj.francecentral-01.azurewebsites
 
 MASKS_DIR = r"C:\Users\flore\Openclassrooms\Projet 8\data\test"
 
-AZURE_BLOB_URL = "https://p8segmentationstorage.blob.core.windows.net/maskscontainers/"
-SAS_TOKEN = "sp=r&st=2025-03-27T10:59:42Z&se=2025-04-06T17:59:42Z&spr=https&sv=2024-11-04&sr=c&sig=vmNTqvEp8St5HICKOUz%2FPxFsamROqfsF92Gp6LtEdoY%3D"
+# Récupérer les secrets
+AZURE_BLOB_URL = st.secrets["azure"]["blob_url"]
+SAS_TOKEN = st.secrets["azure"]["sas_token"]
+
 
 st.title("Segmentation d'Images - Test API")
 
