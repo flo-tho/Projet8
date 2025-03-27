@@ -12,12 +12,9 @@ import matplotlib.pyplot as plt
 API_URL = "https://appprojet8seg-e4audkeuaxa9hwaj.francecentral-01.azurewebsites.net/predict/"
 # API_URL = "http://127.0.0.1:8000/predict/"
 
-MASKS_DIR = r"C:\Users\flore\Openclassrooms\Projet 8\data\test"
-
 # Récupérer les secrets
 AZURE_BLOB_URL = st.secrets["azure"]["blob_url"]
 SAS_TOKEN = st.secrets["azure"]["sas_token"]
-
 
 st.title("Segmentation d'Images - Test API")
 
@@ -59,19 +56,6 @@ def get_original_mask(image_name):
     # Retourner l'URL du masque (chemin d'accès sur Azure)
     return mask_url
 
-# def get_original_mask(image_name):
-#     """
-#     Récupère le masque original correspondant au nom de l'image.
-#     """
-#     base_name = image_name.split(".")[0].replace("_leftImg8bit", "")
-#     for root, dirs, files in os.walk(MASKS_DIR):
-#         for file in files:
-#             if base_name in file and file.endswith("_gtFine_labelIds.npy"):
-#                 return os.path.join(root, file)
-#     return None
-
-
-
 if uploaded_file is not None:
     # Afficher l'image originale
     image = Image.open(uploaded_file)
@@ -101,20 +85,27 @@ if uploaded_file is not None:
                     ax.axis("off")
                     st.pyplot(fig)
 
-                    # Récupérer le masque original
-                    original_mask_path = get_original_mask(uploaded_file.name)
-                    if original_mask_path:
-                        original_mask = np.load(original_mask_path)
-                        original_mask = apply_color_map(original_mask)
+                    # Récupérer l'URL du masque original depuis Azure Blob Storage
+                    original_mask_url = get_original_mask(uploaded_file.name)
+                    if original_mask_url:
+                        # Télécharger le masque original depuis Azure Blob Storage
+                        response = requests.get(original_mask_url)
+                        if response.status_code == 200:
+                            npy_bytes = io.BytesIO(response.content)
+                            original_mask = np.load(npy_bytes)
+                            original_mask = apply_color_map(original_mask)
 
-                        # Affichage du masque original pour comparaison
-                        st.subheader("Masque original")
-                        fig, ax = plt.subplots()
-                        ax.imshow(original_mask)
-                        ax.axis("off")
-                        st.pyplot(fig)
+                            # Affichage du masque original pour comparaison
+                            st.subheader("Masque original")
+                            fig, ax = plt.subplots()
+                            ax.imshow(original_mask)
+                            ax.axis("off")
+                            st.pyplot(fig)
+                        else:
+                            st.warning("Impossible de récupérer le masque original depuis Azure.")
+
                     else:
-                        st.warning("Masque original non trouvé.")
+                        st.warning("URL du masque original non trouvée.")
 
                 except Exception as e:
                     st.error(f"Erreur lors du chargement du fichier: {e}")
